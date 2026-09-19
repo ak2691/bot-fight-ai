@@ -1,0 +1,24 @@
+{
+  "context": {
+    "match_id": "local-test-001",
+    "round": 1,
+    "self": {
+      "selected_abilities": [
+        "replace-with-real-ability-id"
+      ]
+    },
+    "opponent": {
+      "selected_abilities": [
+        "replace-with-real-opponent-ability-id"
+      ],
+      "observations": []
+    },
+    "rules": {
+      "status": "not-confirmed",
+      "note": "Replace this entire section with the canonical Bot Fight Online rules/program definition."
+    },
+    "previous_round_telemetry": []
+  },
+  "candidate_count": 3,
+  "instructions": "Generate illustrative candidates and clearly state assumptions because the real program schema is not supplied."
+}
