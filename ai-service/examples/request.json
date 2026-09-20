@@ -1,24 +1,32 @@
 {
   "context": {
+    "schema_version": "bot-fight-ai-match-context-v1",
+    "ruleset_version": "duel-v1",
+    "brain_schema_version": "bot-logic-tree-v1",
     "match_id": "local-test-001",
-    "round": 1,
+    "round_number": 1,
+    "seed": 42,
     "self": {
+      "slot": 1,
+      "team_number": 1,
       "selected_abilities": [
-        "replace-with-real-ability-id"
+        1,
+        3,
+        4
       ]
     },
     "opponent": {
-      "selected_abilities": [
-        "replace-with-real-opponent-ability-id"
+      "slot": 2,
+      "team_number": 2,
+      "known_abilities": [
+        5,
+        7,
+        10
       ],
       "observations": []
-    },
-    "rules": {
-      "status": "not-confirmed",
-      "note": "Replace this entire section with the canonical Bot Fight Online rules/program definition."
     },
     "previous_round_telemetry": []
   },
   "candidate_count": 3,
-  "instructions": "Generate illustrative candidates and clearly state assumptions because the real program schema is not supplied."
+  "instructions": "Return distinct programs with different legal condition and action structures."
 }

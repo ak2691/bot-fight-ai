@@ -1,0 +1,8 @@
+# The training environment is intentionally separate from ai-service.
+# Install a CUDA-compatible PyTorch build first when the platform requires a
+# custom index, then install this set of trainer dependencies.
+accelerate>=1.2,<2
+bitsandbytes>=0.45,<1
+datasets>=3.2,<5
+llamafactory
+transformers>=4.51,<6

@@ -1,0 +1,16 @@
+{
+  "scenario_id": "local-smoke-001",
+  "seed": 42,
+  "candidate_brain": {
+    "version": "bot-logic-tree-v1",
+    "loadout": { "abilities": [] },
+    "customVariables": [],
+    "roots": []
+  },
+  "opponent_brain": {
+    "version": "bot-logic-tree-v1",
+    "loadout": { "abilities": [] },
+    "customVariables": [],
+    "roots": []
+  }
+}

@@ -41,6 +41,10 @@ class OllamaClient:
         system_prompt: str,
         user_prompt: str,
         temperature: float,
+        response_schema: dict[str, Any] | None = None,
+        context_window: int | None = None,
+        max_output_tokens: int | None = None,
+        keep_alive: str | int | None = None,
     ) -> OllamaReply:
         request_payload = {
             "model": model,
@@ -49,9 +53,14 @@ class OllamaClient:
                 {"role": "user", "content": user_prompt},
             ],
             "stream": False,
-            "format": "json",
+            "format": response_schema or "json",
             "think": False,
-            "options": {"temperature": temperature},
+            **({"keep_alive": keep_alive} if keep_alive is not None else {}),
+            "options": {
+                "temperature": temperature,
+                **({"num_ctx": context_window} if context_window is not None else {}),
+                **({"num_predict": max_output_tokens} if max_output_tokens is not None else {}),
+            },
         }
 
         try:
@@ -91,6 +100,7 @@ class OllamaClient:
                 "total_duration",
                 "load_duration",
                 "prompt_eval_count",
+                "prompt_eval_cached_count",
                 "prompt_eval_duration",
                 "eval_count",
                 "eval_duration",

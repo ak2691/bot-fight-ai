@@ -1,0 +1,446 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://botfight.local/contracts/v1/candidate-response.schema.json",
+  "title": "Bot Fight AI candidate response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["candidates"],
+  "properties": {
+    "candidates": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["candidate_id", "program"],
+        "properties": {
+          "candidate_id": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "program": { "$ref": "#/$defs/program" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "program": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "loadout", "customVariables", "roots"],
+      "properties": {
+        "version": { "const": "bot-logic-tree-v1" },
+        "loadout": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["abilities"],
+          "properties": {
+            "abilities": {
+              "type": "array",
+              "minItems": 0,
+              "maxItems": 6,
+              "uniqueItems": true,
+              "items": { "type": "integer" }
+            }
+          }
+        },
+        "customVariables": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/customVariable" } },
+        "roots": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/root" } },
+        "nodePositions": {
+          "type": "object",
+          "maxProperties": 1000,
+          "additionalProperties": {
+            "type": "object",
+            "required": ["x", "y"],
+            "additionalProperties": false,
+            "properties": {
+              "x": { "type": "number", "minimum": 0, "maximum": 1000000 },
+              "y": { "type": "number", "minimum": 0, "maximum": 1000000 }
+            }
+          },
+          "propertyNames": { "minLength": 1, "maxLength": 200 }
+        }
+      }
+    },
+    "root": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["branches"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 25 },
+        "priority": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "branches": { "type": "array", "items": { "$ref": "#/$defs/branch" } }
+      }
+    },
+    "branch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["conditions", "actions", "children"],
+      "properties": {
+        "id": { "type": "string" },
+        "branchType": { "enum": ["if", "else"] },
+        "priority": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "conditions": { "type": "array", "maxItems": 300, "items": { "$ref": "#/$defs/condition" } },
+        "actions": { "type": "array", "minItems": 1, "maxItems": 100, "items": { "$ref": "#/$defs/action" } },
+        "children": { "type": "array", "items": { "$ref": "#/$defs/branch" } }
+      }
+    },
+    "customVariable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "valueType", "initialValue"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^custom\\.[A-Za-z0-9_.-]{1,52}$" },
+        "name": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9 _-]{0,39}$" },
+        "valueType": { "enum": ["number", "boolean"] },
+        "initialValue": { "type": ["number", "boolean"], "minimum": -99999, "maximum": 99999 }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["valueType"],
+            "properties": { "valueType": { "const": "number" } }
+          },
+          "then": {
+            "required": ["initialValue"],
+            "properties": {
+              "initialValue": { "type": "number", "minimum": -99999, "maximum": 99999 }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["valueType"],
+            "properties": { "valueType": { "const": "boolean" } }
+          },
+          "then": {
+            "required": ["initialValue"],
+            "properties": { "initialValue": { "type": "boolean" } }
+          }
+        }
+      ]
+    },
+    "operand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value"],
+      "properties": {
+        "type": { "enum": ["number", "boolean", "variable"] },
+        "value": { "type": ["number", "boolean", "string"] },
+        "selectable": { "type": "string" },
+        "selectable1": { "type": "string" },
+        "selectable2": { "type": "string" },
+        "ability": { "type": "integer" },
+        "statusEffect": { "type": "string" },
+        "targetMode": { "enum": ["target", "coordinates", "angle"] },
+        "targetX": { "type": "number", "minimum": 0, "maximum": 1200 },
+        "targetY": { "type": "number", "minimum": 0, "maximum": 1200 },
+        "targetAngle": { "type": "number", "minimum": -360, "maximum": 360 }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["type"],
+            "properties": { "type": { "const": "number" } }
+          },
+          "then": {
+            "required": ["value"],
+            "properties": {
+              "value": { "type": "number", "minimum": -99999, "maximum": 99999 }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["type"],
+            "properties": { "type": { "const": "boolean" } }
+          },
+          "then": {
+            "required": ["value"],
+            "properties": { "value": { "type": "boolean" } }
+          }
+        },
+        {
+          "if": {
+            "required": ["type"],
+            "properties": { "type": { "const": "variable" } }
+          },
+          "then": {
+            "required": ["value"],
+            "properties": {
+              "value": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        {
+          "if": { "required": ["targetX"] },
+          "then": { "required": ["targetY"] }
+        },
+        {
+          "if": { "required": ["targetY"] },
+          "then": { "required": ["targetX"] }
+        }
+      ]
+    },
+    "condition": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type"],
+          "properties": { "type": { "const": "always" } }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "left", "comparator", "right", "ability"],
+          "properties": {
+            "type": { "const": "expression" },
+            "left": { "type": "string" },
+            "comparator": { "enum": ["lt", "lte", "eq", "neq", "gte", "gt"] },
+            "right": { "$ref": "#/$defs/operand" },
+            "join": { "enum": ["and", "or"] },
+            "selectable": { "type": "string" },
+            "selectable1": { "type": "string" },
+            "selectable2": { "type": "string" },
+            "leftSelectable": { "type": "string" },
+            "rightSelectable": { "type": "string" },
+            "ability": { "type": "integer", "minimum": 1 },
+            "statusEffect": { "enum": ["stun", "bleed", "slow", "shock", "overclock", "burn", "silence"] },
+            "targetMode": { "enum": ["target", "coordinates", "angle"] },
+            "targetX": { "type": "number", "minimum": 0, "maximum": 1200 },
+            "targetY": { "type": "number", "minimum": 0, "maximum": 1200 },
+            "targetAngle": { "type": "number", "minimum": -360, "maximum": 360 }
+          },
+          "allOf": [
+            {
+              "if": {
+                "required": ["targetMode"],
+                "properties": { "targetMode": { "const": "coordinates" } }
+              },
+              "then": { "required": ["targetX", "targetY"] }
+            },
+            {
+              "if": {
+                "required": ["targetMode"],
+                "properties": { "targetMode": { "const": "angle" } }
+              },
+              "then": { "required": ["targetAngle"] }
+            },
+            {
+              "if": { "required": ["targetX"] },
+              "then": { "required": ["targetY"] }
+            },
+            {
+              "if": { "required": ["targetY"] },
+              "then": { "required": ["targetX"] }
+            },
+            {
+              "if": {
+                "properties": {
+                  "left": {
+                    "enum": ["bot.selectedStatusEffectActive", "bot.selectedStatusEffectDurationMs"]
+                  }
+                }
+              },
+              "then": { "required": ["statusEffect"] }
+            },
+            {
+              "if": {
+                "required": ["right"],
+                "properties": {
+                  "right": {
+                    "type": "object",
+                    "properties": {
+                      "type": { "const": "variable" },
+                      "value": {
+                        "enum": ["bot.selectedStatusEffectActive", "bot.selectedStatusEffectDurationMs"]
+                      }
+                    }
+                  }
+                }
+              },
+              "then": { "required": ["statusEffect"] }
+            }
+          ]
+        }
+      ]
+    },
+    "action": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["action", "selectable", "movementMode"],
+          "properties": {
+            "action": { "const": "move_walk" },
+            "selectable": { "type": "string" },
+            "movementMode": { "const": "target" },
+            "targetOffsetX": { "type": "number", "minimum": -1200, "maximum": 1200 },
+            "targetOffsetY": { "type": "number", "minimum": -1200, "maximum": 1200 },
+            "movementDirection": { "type": ["string", "number"] }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["action", "movementMode", "targetX", "targetY"],
+          "properties": {
+            "action": { "const": "move_walk" },
+            "movementMode": { "const": "coordinates" },
+            "selectable": { "type": "string" },
+            "targetX": { "type": "number", "minimum": 0, "maximum": 1200 },
+            "targetY": { "type": "number", "minimum": 0, "maximum": 1200 },
+            "targetOffsetX": { "type": "number", "minimum": -1200, "maximum": 1200 },
+            "targetOffsetY": { "type": "number", "minimum": -1200, "maximum": 1200 },
+            "movementDirection": { "type": ["string", "number"] }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["action", "movementMode", "movementDirection"],
+          "properties": {
+            "action": { "const": "move_walk" },
+            "movementMode": { "const": "absolute" },
+            "selectable": { "type": "string" },
+            "movementDirection": {
+              "oneOf": [
+                { "type": "number", "minimum": -360, "maximum": 360 },
+                { "enum": ["north", "south", "east", "west", "northeast", "northwest", "southeast", "southwest", "stop"] },
+                { "type": "string", "pattern": "^-?(?:\\d+(?:\\.\\d*)?|\\.\\d+)$" }
+              ]
+            },
+            "targetX": { "type": "number", "minimum": 0, "maximum": 1200 },
+            "targetY": { "type": "number", "minimum": 0, "maximum": 1200 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["action", "selectable"],
+          "properties": {
+            "action": { "const": "rotate_toward_enemy" },
+            "selectable": { "type": "string" },
+            "targetMode": { "enum": ["target", "coordinates", "angle"] },
+            "targetX": { "type": "number", "minimum": 0, "maximum": 1200 },
+            "targetY": { "type": "number", "minimum": 0, "maximum": 1200 },
+            "targetAngle": { "type": "number", "minimum": -360, "maximum": 360 },
+            "phaseFacingMode": { "type": "number", "minimum": -360, "maximum": 360 }
+          },
+          "allOf": [
+            {
+              "if": {
+                "required": ["targetMode"],
+                "properties": { "targetMode": { "const": "coordinates" } }
+              },
+              "then": { "required": ["targetX", "targetY"] }
+            },
+            {
+              "if": {
+                "required": ["targetMode"],
+                "properties": { "targetMode": { "const": "angle" } }
+              },
+              "then": { "required": ["targetAngle"] }
+            },
+            {
+              "if": { "required": ["targetX"] },
+              "then": { "required": ["targetY"] }
+            },
+            {
+              "if": { "required": ["targetY"] },
+              "then": { "required": ["targetX"] }
+            }
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["action"],
+          "properties": { "action": { "const": "none" } }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["action"],
+          "properties": {
+            "action": { "type": "integer" },
+            "selectable": { "type": "string" },
+            "targetOffsetX": { "type": "number", "minimum": -1200, "maximum": 1200 },
+            "targetOffsetY": { "type": "number", "minimum": -1200, "maximum": 1200 },
+            "targetMode": { "enum": ["target", "coordinates", "angle"] },
+            "targetX": { "type": "number", "minimum": 0, "maximum": 1200 },
+            "targetY": { "type": "number", "minimum": 0, "maximum": 1200 },
+            "targetAngle": { "type": "number", "minimum": -360, "maximum": 360 },
+            "movementMode": { "enum": ["target", "coordinates", "absolute"] },
+            "movementDirection": { "type": ["string", "number"] },
+            "phaseFacingMode": { "type": "number", "minimum": -360, "maximum": 360 }
+          },
+          "allOf": [
+            {
+              "if": {
+                "required": ["movementMode"],
+                "properties": { "movementMode": { "const": "coordinates" } }
+              },
+              "then": { "required": ["targetX", "targetY"] }
+            },
+            {
+              "if": {
+                "required": ["movementMode"],
+                "properties": { "movementMode": { "const": "absolute" } }
+              },
+              "then": { "required": ["movementDirection"] }
+            },
+            {
+              "if": {
+                "required": ["targetMode"],
+                "properties": { "targetMode": { "const": "coordinates" } }
+              },
+              "then": { "required": ["targetX", "targetY"] }
+            },
+            {
+              "if": {
+                "required": ["targetMode"],
+                "properties": { "targetMode": { "const": "angle" } }
+              },
+              "then": { "required": ["targetAngle"] }
+            },
+            {
+              "if": { "required": ["targetX"] },
+              "then": { "required": ["targetY"] }
+            },
+            {
+              "if": { "required": ["targetY"] },
+              "then": { "required": ["targetX"] }
+            }
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["action", "variableId", "operation", "operand"],
+          "properties": {
+            "action": { "const": "variable" },
+            "variableId": { "type": "string", "pattern": "^custom\\.[A-Za-z0-9_.-]{1,52}$" },
+            "operation": { "enum": ["set", "add", "subtract", "modulo"] },
+            "operand": { "$ref": "#/$defs/operand" },
+            "terms": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 20,
+              "items": { "$ref": "#/$defs/term" }
+            }
+          }
+        }
+      ]
+    },
+    "term": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operator", "operand"],
+      "properties": {
+        "operator": { "enum": ["set", "add", "subtract", "modulo"] },
+        "operand": { "$ref": "#/$defs/operand" }
+      }
+    }
+  }
+}

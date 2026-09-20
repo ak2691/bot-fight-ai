@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://botfight.local/contracts/v1/decision-request.schema.json",
+  "title": "Bot Fight AI decision request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ruleset_version",
+    "brain_schema_version",
+    "match_id",
+    "round_number",
+    "seed",
+    "candidate_count",
+    "player_a",
+    "player_b"
+  ],
+  "properties": {
+    "schema_version": { "const": "bot-fight-ai-match-context-v1" },
+    "ruleset_version": { "const": "duel-v1" },
+    "brain_schema_version": { "const": "bot-logic-tree-v1" },
+    "match_id": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "round_number": { "type": "integer", "minimum": 1, "maximum": 3 },
+    "seed": { "type": "integer" },
+    "candidate_count": { "type": "integer", "minimum": 1, "maximum": 20 },
+    "player_a": { "$ref": "#/$defs/player" },
+    "player_b": { "$ref": "#/$defs/player" },
+    "previous_round_telemetry": {
+      "type": "array",
+      "maxItems": 10,
+      "items": { "type": "object" }
+    }
+  },
+  "$defs": {
+    "player": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selected_abilities",
+        "known_opponent_abilities",
+        "slot",
+        "team_number",
+        "opponent_slot",
+        "opponent_team_number"
+      ],
+      "properties": {
+        "selected_abilities": {
+          "type": "array",
+          "maxItems": 6,
+          "uniqueItems": true,
+          "items": { "type": "integer" }
+        },
+        "known_opponent_abilities": {
+          "type": "array",
+          "maxItems": 9,
+          "uniqueItems": true,
+          "items": { "type": "integer" }
+        },
+        "slot": { "type": "integer", "minimum": 1, "maximum": 8 },
+        "team_number": { "type": "integer", "minimum": 1, "maximum": 8 },
+        "opponent_slot": { "type": "integer", "minimum": 1, "maximum": 8 },
+        "opponent_team_number": { "type": "integer", "minimum": 1, "maximum": 8 }
+      }
+    }
+  }
+}

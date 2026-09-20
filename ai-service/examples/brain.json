@@ -1,0 +1,38 @@
+{
+  "version": "bot-logic-tree-v1",
+  "loadout": {
+    "abilities": []
+  },
+  "customVariables": [],
+  "roots": [
+    {
+      "id": "basic-root",
+      "name": "Basic Program",
+      "priority": 1,
+      "branches": [
+        {
+          "id": "basic-actions",
+          "branchType": "if",
+          "priority": 1,
+          "conditions": [
+            {
+              "type": "always"
+            }
+          ],
+          "actions": [
+            {
+              "action": "move_walk",
+              "selectable": "opponent_1",
+              "movementMode": "target"
+            },
+            {
+              "action": 34,
+              "selectable": "opponent_1"
+            }
+          ],
+          "children": []
+        }
+      ]
+    }
+  ]
+}

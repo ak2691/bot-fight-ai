@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://botfight.local/contracts/v1/match-context.schema.json",
+  "title": "Bot Fight AI match context",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "ruleset_version",
+    "brain_schema_version",
+    "match_id",
+    "round_number",
+    "seed",
+    "self",
+    "opponent"
+  ],
+  "properties": {
+    "schema_version": { "const": "bot-fight-ai-match-context-v1" },
+    "ruleset_version": { "const": "duel-v1" },
+    "brain_schema_version": { "const": "bot-logic-tree-v1" },
+    "match_id": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "round_number": { "type": "integer", "minimum": 0 },
+    "seed": { "type": "integer" },
+    "self": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selected_abilities"],
+      "properties": {
+        "slot": { "type": "integer", "minimum": 1, "maximum": 8, "default": 1 },
+        "team_number": { "type": "integer", "minimum": 1, "maximum": 8, "default": 1 },
+        "selected_abilities": {
+          "type": "array",
+          "maxItems": 6,
+          "uniqueItems": true,
+          "items": { "type": "integer" }
+        }
+      }
+    },
+    "opponent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["known_abilities"],
+      "properties": {
+        "slot": { "type": "integer", "minimum": 1, "maximum": 8, "default": 2 },
+        "team_number": { "type": "integer", "minimum": 1, "maximum": 8, "default": 2 },
+        "known_abilities": {
+          "type": "array",
+          "maxItems": 9,
+          "uniqueItems": true,
+          "items": { "type": "integer" }
+        },
+        "observations": { "type": "array", "maxItems": 100, "items": { "type": "object" } }
+      }
+    },
+    "previous_round_telemetry": {
+      "type": "array",
+      "maxItems": 10,
+      "items": { "type": "object" }
+    }
+  }
+}

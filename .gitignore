@@ -42,4 +42,17 @@ venv/
 .env.*
 !.env.example
 data/
+!ai-service/app/data/
+!ai-service/app/data/duel-v1-game-knowledge.json
 models/
+tools/.build/
+
+# Offline fine-tuning workspace. Keep raw examples, generated datasets,
+# checkpoints, and local base-model caches out of source control.
+training/.venv/
+training/base-models/
+!training/data/
+training/data/raw/
+training/data/generated/
+training/runs/
+training/logs/
